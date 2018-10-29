@@ -1,71 +1,12 @@
 #include "ft_md5.h"
 
-void md5_init(t_md5_ctx *ctx)
+void md5_rounds(t_md5_ffgghhii_param *p)
 {
-	ctx->count[0] = 0;
-	ctx->count[1] = 0;
-	ctx->state[0] = 0x67452301;
-	ctx->state[1] = 0xefcdab89;
-	ctx->state[2] = 0x98badcfe;
-	ctx->state[3] = 0x10325476;
-}
+	int i;
 
-void md5_update(t_md5_ctx *ctx, unsigned char *input, unsigned int input_len)
-{
-	unsigned int i;
-	unsigned int index;
-	unsigned int part_len;
-
-	index = (unsigned int)((ctx->count[0] >> 3) & 0x3F);
-	if ((ctx->count[0] += ((uint32_t)input_len << 3)) < ((uint32_t)input_len << 3))
-		ctx->count[1]++;
-	ctx->count[1] += ((uint32_t)input_len >> 29);
-	part_len = 64 - index;
-	if (input_len >= part_len)
-	{
-		md5_memcpy(&ctx->buffer[index], input, part_len);
-		md5_transform(ctx->state, ctx->buffer);
-		i = part_len;
-		while (i + 63 < input_len)
-		{
-			md5_transform(ctx->state, &input[i]);
-			i += 64;
-		}
-		index = 0;
-	}
-	else
-		i = 0;
-	md5_memcpy(&ctx->buffer[index], &input[i], input_len - i);
-}
-
-void md5_final(unsigned char output[16], t_md5_ctx *ctx)
-{
-	unsigned char bits[8];
-	unsigned int index;
-	unsigned int pad_len;
-
-	md5_encode(bits, ctx->count, 8);
-	index = (unsigned int)((ctx->count[0] >> 3) & 0x3f);
-	pad_len = (index < 56) ? (56 - index) : (120 - index);
-	md5_update(ctx, PADDING, pad_len);
-	md5_update(ctx, bits, 8);
-	md5_encode(output, ctx->state, 16);
-	md5_memset((unsigned char *)ctx, 0, sizeof(*ctx));
-}
-
-static void md5_transform(uint32_t state[4], unsigned char block[64])
-{
-	uint32_t x[16];
-	uint32_t a;
-	uint32_t b;
-	uint32_t c;
-	uint32_t d;
-
-	a = state[0];
-	b = state[1];
-	c = state[2];
-	d = state[3];
-	md5_decode(x, block, 64);
+	i = -1;
+	p->ac 
+	md5_ffgghhii(&p);
 	FF (a, b, c, d, x[ 0], S11, 0xd76aa478); /* 1 */
 	FF (d, a, b, c, x[ 1], S12, 0xe8c7b756); /* 2 */
 	FF (c, d, a, b, x[ 2], S13, 0x242070db); /* 3 */
@@ -130,12 +71,105 @@ static void md5_transform(uint32_t state[4], unsigned char block[64])
 	II (d, a, b, c, x[11], S42, 0xbd3af235); /* 62 */
 	II (c, d, a, b, x[ 2], S43, 0x2ad7d2bb); /* 63 */
 	II (b, c, d, a, x[ 9], S44, 0xeb86d391); /* 64 */
+}
 
-	state[0] += a;
-	state[1] += b;
-	state[2] += c;
-	state[3] += d;
-	md5_memset((unsigned char *)x, 0, sizeof(x));
+uint32_t md5_fghi(uint32_t x, uint32_t y, uint32_t z, char fghi)
+{
+	if (fghi == MD5_F_FF)
+		return (((x) & (y)) | ((~x) & (z)));
+	if (fghi == MD5_G_GG)
+		return (((x) & (z)) | ((y) & (~z)));
+	if (fghi == MD5_H_HH)
+		return (((x) ^ (y) ^ (z)));
+	if (fghi == MD5_I_II)
+		return (((y) ^ ((x) | (~z))));
+	return (0);
+}
+
+void md5_ffgghhii(t_md5_ffgghhii_param *p)
+{
+	p->a = p->a + (md5_fghi(p->b, p->c, p->d, p->ffgghhii_selector) + p->x[0] + p->ac[0]);
+	p->a = ROTATE_LEFT((p->a), (p->s));
+	p->a += p->b;
+	p->d = p->d + (md5_fghi(p->a, p->b, p->c, p->ffgghhii_selector) + p->x[1] + p->ac[1]);
+	p->d = ROTATE_LEFT((p->d), (p->s));
+	p->d += p->a;
+	p->c = p->c + (md5_fghi(p->d, p->a, p->b, p->ffgghhii_selector) + p->x[2] + p->ac[2]);
+	p->c = ROTATE_LEFT((p->c), (p->s));
+	p->c += p->d;
+	p->b = p->b + (md5_fghi(p->c, p->d, p->a, p->ffgghhii_selector) + p->x[3] + p->ac[3]);
+	p->b = ROTATE_LEFT((p->b), (p->s));
+	p->b += p->c;
+}
+
+void md5_init(t_md5_ctx *ctx)
+{
+	ctx->count[0] = 0;
+	ctx->count[1] = 0;
+	ctx->state[0] = 0x67452301;
+	ctx->state[1] = 0xefcdab89;
+	ctx->state[2] = 0x98badcfe;
+	ctx->state[3] = 0x10325476;
+}
+
+void md5_update(t_md5_ctx *ctx, unsigned char *input, unsigned int input_len)
+{
+	unsigned int i;
+	unsigned int index;
+	unsigned int part_len;
+
+	index = (unsigned int)((ctx->count[0] >> 3) & 0x3F);
+	if ((ctx->count[0] += ((uint32_t)input_len << 3)) < ((uint32_t)input_len << 3))
+		ctx->count[1]++;
+	ctx->count[1] += ((uint32_t)input_len >> 29);
+	part_len = 64 - index;
+	if (input_len >= part_len)
+	{
+		md5_memcpy(&ctx->buffer[index], input, part_len);
+		md5_transform(ctx->state, ctx->buffer);
+		i = part_len;
+		while (i + 63 < input_len)
+		{
+			md5_transform(ctx->state, &input[i]);
+			i += 64;
+		}
+		index = 0;
+	}
+	else
+		i = 0;
+	md5_memcpy(&ctx->buffer[index], &input[i], input_len - i);
+}
+
+void md5_final(unsigned char output[16], t_md5_ctx *ctx)
+{
+	unsigned char bits[8];
+	unsigned int index;
+	unsigned int pad_len;
+
+	md5_encode(bits, ctx->count, 8);
+	index = (unsigned int)((ctx->count[0] >> 3) & 0x3f);
+	pad_len = (index < 56) ? (56 - index) : (120 - index);
+	md5_update(ctx, PADDING, pad_len);
+	md5_update(ctx, bits, 8);
+	md5_encode(output, ctx->state, 16);
+	md5_memset((unsigned char *)ctx, 0, sizeof(*ctx));
+}
+
+static void md5_transform(uint32_t state[4], unsigned char block[64])
+{
+	t_md5_ffgghhii_param par;
+	par.a = state[0];
+	par.b = state[1];
+	par.c = state[2];
+	par.d = state[3];
+	md5_decode(par.x, block, 64);
+	md5_rounds(&par);
+
+	state[0] += par.a;
+	state[1] += par.b;
+	state[2] += par.c;
+	state[3] += par.d;
+	md5_memset((unsigned char *)par.x, 0, sizeof(par.x));
 }
 
 static void md5_encode(unsigned char *output, uint32_t *input, unsigned int len)

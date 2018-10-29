@@ -8,13 +8,68 @@ int main(int argc, char **argv)
 	if (argc < 3)
 		return (ft_ssl_usage());
 	ft_ssl_argparse(argc, argv, &prg, &prg_stack);
+	ft_ssl_process_inputs(&prg, &prg_stack);
+}
+
+void ft_ssl_process_inputs(t_ft_ssl_prg *prg, t_stack *head)
+{
+	t_ft_ssl_input *tmp_input;
+	char *tmp_buff;
+	char *output;
+
+	while (!stack_empty(head))
+	{
+		tmp_input = (t_ft_ssl_input *)stack_pop(head);
+		tmp_input->digest = ft_strdup(prg->ssl_fnc(tmp_input->input));
+		if (tmp_input->input_type == SSL_INPUT_STDIN)
+		{
+			if (prg->flags.echo_stdin)
+				ft_str_prepend(output, tmp_input->input);
+			ft_str_prepend(output, tmp_input->digest);
+		}
+		else
+		{
+			if (!prg->flags.quiet_mode && !prg->flags.reverse_output_fmt)
+			{
+				if (tmp_input->input_type == SSL_INPUT_STRING)
+					sprintf(output, "%s (\"%s\") = %s\n", prg->name, tmp_input->filename, tmp_input->digest);
+				else if (tmp_input->input_type == SSL_INPUT_FILE)
+					sprintf(output, "%s (%s) = %s\n", prg->name, tmp_input->filename, tmp_input->digest);
+			}
+			if (prg->flags.reverse_output_fmt)
+			{
+				if (tmp_input->input_type == SSL_INPUT_STRING)
+					sprintf(output, "%s \"%s\"", tmp_input->digest, tmp_input->filename); 
+				else if (tmp_input->input_type == SSL_INPUT_FILE)
+					sprintf(output, "%s (%s) = %s\n", prg->name, tmp_input->filename, tmp_input->digest);
+			}
+		}
+	}
 }
 
 void ft_ssl_argparse(int argc, char **argv, t_ft_ssl_prg *prg, t_stack *head)
 {
 	stack_init(head, SSL_MAX_ARGS);
+	ft_ssl_get_stdin(head);
 	ft_ssl_getsslfunc(argv[2], prg);
 	ft_ssl_getflags(argc, argv, prg, head);
+}
+
+void ft_sll_get_stdin(t_stack *head)
+{
+	char buff[SSL_MAX_STDIN_LEN + 1];
+	int ret;
+	t_ft_ssl_input *tmp_input;
+
+	ret = read(STDIN_FILENO, buff, SSL_MAX_STDIN_LEN);
+	if (!ret)
+		return ;
+	buff[ret] = '\0';
+	tmp_input = ft_memalloc(sizeof(*tmp_input));
+	tmp_input->input_type = SSL_INPUT_STDIN;
+	tmp_input->input = ft_strdup(buff);
+	tmp_input->input_len = ft_strlen(tmp_input->input);
+	stack_push(head, tmp_input);
 }
 
 void ft_ssl_getflags(int argc, char **argv, t_ft_ssl_prg *prg, t_stack *head)

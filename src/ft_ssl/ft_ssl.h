@@ -6,8 +6,9 @@
 # include "sha256.h"
 
 # define SSL_MAX_ARGS 1024
+# define SSL_MAX_STDIN_LEN 1024
 
-typedef void (*t_ft_ssl_func)(char *);
+typedef char (*t_ft_ssl_func)(char *);
 
 typedef struct			s_ft_ssl_flags
 {

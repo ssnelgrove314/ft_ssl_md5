@@ -1,6 +1,6 @@
 NAME	:=	ft_ssl
 CC		:=	gcc
-CFLAGS	:=	-Wall -Werror -Wextra
+CFLAGS	:=	-Wall -Werror -Wextra -g
 LDFLAGS	:=	-Llibs/libft -lft
 
 SRC = $(wildcard src/ft_md5/*.c) \
@@ -8,8 +8,10 @@ SRC = $(wildcard src/ft_md5/*.c) \
        $(wildcard src/ft_ssl/*.c)
 OBJ = $(SRC:.c=.o)
 
-$(NAME): $(OBJ) libft
-    $(CC) -o $@ $^ $(CFLAGS) $(LDFLAGS)
+all: libft $(NAME)
+
+$(NAME): $(OBJ)
+	$(CC) -o $@ $^ $(CFLAGS) $(LDFLAGS)
 
 .PHONY: libft
 libft:
@@ -22,7 +24,4 @@ clean:
 fclean:
 	rm -f $(NAME)
 
-re:
-	clean
-	fclean
-	$(NAME)
+re: fclean all

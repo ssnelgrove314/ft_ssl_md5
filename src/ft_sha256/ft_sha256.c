@@ -130,20 +130,22 @@ void sha256_final(sha256_ctx_t *ctx, uint8_t hash[])
 
 char *sha256_digest_tochar(unsigned char digest[32])
 {
+	t_vector test;
 	char *output;
-	char *tmp;
+	char buf[3];
 	int i;
 
-	output = (char *)ft_memalloc(sizeof(char) * 65);
-	tmp = output;
+	output = NULL;
+	ft_vector_init(&test, 32);
 	i = 0;
-	while (i < 64)
+	while (i < 16)
 	{
-		sprintf(tmp, "%02x", digest[i]);
-		tmp += 2;
+		sprintf(buf, "%02x", digest[i]);
+		ft_vector_append(&test, (char *)buf);
 		i++;
 	}
-	output[i] = '\0';
+	output = ft_strdup(test.data);
+	ft_vector_free(&test);
 	return (output);
 }
 
@@ -156,7 +158,6 @@ char *sha256_string(char *str)
 	sha256_init(&ctx);
 	sha256_update(&ctx, (uint8_t *)str, ft_strlen(str));
 	sha256_final(&ctx, digest);
-	sha256_digest_tochar(digest);
 	final = sha256_digest_tochar(digest);
 	return (final);
 }

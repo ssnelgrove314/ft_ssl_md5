@@ -42,9 +42,10 @@ typedef struct			s_ft_ssl_prg
 	char				*name;
 	t_ft_ssl_func		ssl_fnc;
 	t_ft_ssl_flags		flags;
+	char 				**after_flags;
 }						t_ft_ssl_prg;
 
-void ft_ssl_getflags(int *argc, char ***argv, t_ft_ssl_prg *prg, t_stack *head);
+void ft_ssl_getflags(char ***argv, t_ft_ssl_prg *prg);
 void ft_ssl_getsslfunc(char *func, t_ft_ssl_prg *prg);
 void ft_ssl_get_stdin(t_stack *head);
 char *ft_ssl_process_inputs(t_ft_ssl_prg *prg, t_stack *head);

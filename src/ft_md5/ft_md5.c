@@ -186,20 +186,22 @@ void md5_memset(unsigned char *output, int value, unsigned int len)
 
 char *md5_digest_tochar(unsigned char digest[16])
 {
+	t_vector test;
 	char *output;
-	char *tmp;
+	char buf[3];
 	int i;
 
-	output = (char *)ft_memalloc(sizeof(char) * 33);
-	tmp = output;
+	output = NULL;
+	ft_vector_init(&test, 1);
 	i = 0;
-	while (i < 32)
+	while (i < 16)
 	{
-		sprintf(tmp, "%02x", digest[i]);
-		tmp += 2;
+		sprintf(buf, "%02x", digest[i]);
+		ft_vector_append(&test, (char *)buf);
 		i++;
 	}
-	output[i] = '\0';
+	output = ft_strdup(test.data);
+	ft_vector_free(&test);
 	return (output);
 }
 

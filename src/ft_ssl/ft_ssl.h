@@ -33,7 +33,6 @@ typedef struct			s_ft_ssl_input
 	int					input_type;
 	char				*filename;
 	char				*input;
-	size_t				input_len;
 	char				*digest;
 }						t_ft_ssl_input;
 
@@ -45,12 +44,12 @@ typedef struct			s_ft_ssl_prg
 	char 				**after_flags;
 }						t_ft_ssl_prg;
 
-void ft_ssl_getflags(char ***argv, t_ft_ssl_prg *prg);
-void ft_ssl_getsslfunc(char *func, t_ft_ssl_prg *prg);
-void ft_ssl_get_stdin(t_stack *head);
-char *ft_ssl_process_inputs(t_ft_ssl_prg *prg, t_stack *head);
-void ft_ssl_print(t_ft_ssl_prg *prg, t_stack *head);
-void ft_ssl_error(char *msg);
-int ft_ssl_usage(void);
+void					ft_ssl_getflags(char ***argv, t_ft_ssl_prg *prg);
+void					ft_ssl_getsslfunc(char *func, t_ft_ssl_prg *prg);
+void					ft_ssl_get_stdin(t_queue *head);
+char					*ft_ssl_process_inputs(t_ft_ssl_prg *prg, t_queue *head);
+void					ft_ssl_print(t_ft_ssl_prg *prg, t_queue *head);
+void					ft_ssl_error(char *msg);
+int						ft_ssl_usage(void);
 
 #endif

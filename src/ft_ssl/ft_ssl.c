@@ -31,10 +31,10 @@ void ft_ssl_get_func(char ***argv, t_ft_ssl_prg *prg)
 			return ;
 		}
 	}
-	ft_ssl_error((char *)argv[0]);
+	ft_ssl_error(ft_strjoin(argv[0][1], "is an invalid function"));
 }
 
-void ft_ssl_get_s_optstr(char ***argv, t_stack *head)
+void ft_ssl_get_s_optstr(char ***argv, t_queue *head)
 {
 	t_ft_ssl_input *tmp_input;
 	char **av;
@@ -52,8 +52,7 @@ void ft_ssl_get_s_optstr(char ***argv, t_stack *head)
 			tmp_input = (t_ft_ssl_input *)ft_memalloc(sizeof(t_ft_ssl_input));
 			tmp_input->input = ft_strdup(*av);
 			tmp_input->input_type = SSL_INPUT_STRING;
-			tmp_input->input_len = ft_strlen(tmp_input->input);
-			stack_push(head, tmp_input);
+			enqueue(head, tmp_input);
 		}
 		av += 1;
 	}
@@ -70,7 +69,6 @@ void ft_ssl_getflags(char ***argv, t_ft_ssl_prg *prg)
 		if (**av != '-')
 		{
 			prg->flags.file_flag = 1;
-			prg->after_flags = av;
 			break ;
 		}
 		if (av[0][1] == 'p')
@@ -83,13 +81,12 @@ void ft_ssl_getflags(char ***argv, t_ft_ssl_prg *prg)
 		{
 			prg->flags.string_input = 1;
 			av += 1;
-			prg->after_flags = av + 1;
 		}
 		else 
 			ft_ssl_error("Invalid option");
 		av += 1;
+		prg->after_flags = av;
 	}
-	//possible ft_error("Not enough arguments?");
 }
 
 void ft_ssl_input_print_quiet(t_ft_ssl_input *tmp_input, t_vector *output)
@@ -128,7 +125,7 @@ void ft_ssl_input_print_normal(t_ft_ssl_input *tmp_input, t_vector *output, t_ft
 	else if (tmp_input->input_type == SSL_INPUT_FILE)
 		ft_vector_append(output, tmp_input->filename);
 	ft_vector_append(output, ") = ");
-	ft_vector_nappend(output, tmp_input->digest, 60);
+	ft_vector_append(output, tmp_input->digest);
 	ft_vector_append(output, "\n");
 }
 
@@ -143,7 +140,7 @@ void input_free(t_ft_ssl_input *tofree)
 	free (tofree);
 }
 
-char *ft_ssl_process_inputs(t_ft_ssl_prg *prg, t_stack *head)
+char *ft_ssl_process_inputs(t_ft_ssl_prg *prg, t_queue *head)
 {
 	t_ft_ssl_input *tmp_input;
 	t_vector output;
@@ -151,9 +148,9 @@ char *ft_ssl_process_inputs(t_ft_ssl_prg *prg, t_stack *head)
 
 	ret = NULL;
 	ft_vector_init(&output, 128);
-	while (!stack_empty(head))
+	while (!empty_queue(head))
 	{
-		tmp_input = (t_ft_ssl_input *)stack_pop(head);
+		tmp_input = (t_ft_ssl_input *)dequeue(head);
 		tmp_input->digest = prg->ssl_fnc(tmp_input->input);
 		if (tmp_input->input_type == SSL_INPUT_STDIN)
 		{
@@ -163,6 +160,7 @@ char *ft_ssl_process_inputs(t_ft_ssl_prg *prg, t_stack *head)
 				ft_vector_append(&output, "\n");
 			}
 			ft_vector_append(&output, tmp_input->digest);
+			ft_vector_append(&output, "\n");
 		}
 		else if (prg->flags.quiet_mode)
 				ft_ssl_input_print_quiet(tmp_input, &output);
@@ -177,10 +175,11 @@ char *ft_ssl_process_inputs(t_ft_ssl_prg *prg, t_stack *head)
 	return (ret);
 }
 
-void ft_ssl_read_file(int fd, t_stack *head, char *filename)
+void ft_ssl_read_file(int fd, t_queue *head, char *filename)
 {
 	char buf[64];
 	int ret;
+	
 	t_vector file;
 	t_ft_ssl_input *tmp;
 
@@ -196,12 +195,11 @@ void ft_ssl_read_file(int fd, t_stack *head, char *filename)
 		tmp->filename = ft_strdup(filename);
 	}
 	tmp->input = ft_strdup(file.data);
-	tmp->input_len = file.len;
-	stack_push(head, tmp);
+	enqueue(head, tmp);
 	ft_vector_free(&file);
 }
 
-void ft_ssl_get_files_and_str(char ***argv, t_ft_ssl_prg *prg, t_stack *prg_stack)
+void ft_ssl_get_files_and_str(char ***argv, t_ft_ssl_prg *prg, t_queue *prg_stack)
 {
 	int fd;
 
@@ -213,7 +211,7 @@ void ft_ssl_get_files_and_str(char ***argv, t_ft_ssl_prg *prg, t_stack *prg_stac
 	while (*prg->after_flags)
 	{
 		if ((fd = ft_fopen(*(prg->after_flags), "r")) == -1)
-			ft_ssl_error("yo this ain't a file.");
+			ft_ssl_error(ft_strjoin(*(prg->after_flags), " is an invalid file"));
 		ft_ssl_read_file(fd, prg_stack, *(prg->after_flags));
 		prg->after_flags += 1;
 		close(fd);
@@ -222,20 +220,19 @@ void ft_ssl_get_files_and_str(char ***argv, t_ft_ssl_prg *prg, t_stack *prg_stac
 
 int main(int argc, char **argv)
 {
-	t_stack prg_stack;
+	t_queue prg_stack;
 	t_ft_ssl_prg prg;
 	char *output;
 
 	output = NULL;
 	if (argc == 1)
 		ft_ssl_usage();
-	stack_init(&prg_stack, SSL_MAX_ARGS);
+	init_queue(&prg_stack);
 	ft_ssl_get_func(&argv, &prg);
 	ft_ssl_getflags(&argv, &prg);
 	ft_ssl_get_files_and_str(&argv, &prg, &prg_stack);
 	output = ft_ssl_process_inputs(&prg, &prg_stack);
-	stack_destroy(&prg_stack);
-	printf("%s\n", output);
+	printf("%s", output);
 	free(output);
 	return (0);
 }

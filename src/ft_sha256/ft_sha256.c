@@ -136,7 +136,7 @@ char *sha256_digest_tochar(unsigned char digest[32])
 	int i;
 
 	output = NULL;
-	ft_vector_init(&test, 32);
+	ft_vector_init(&test, 33);
 	i = 0;
 	while (i < 16)
 	{
@@ -144,6 +144,7 @@ char *sha256_digest_tochar(unsigned char digest[32])
 		ft_vector_append(&test, (char *)buf);
 		i++;
 	}
+	*(test.data + 32) = '\0';
 	output = ft_strdup(test.data);
 	ft_vector_free(&test);
 	return (output);

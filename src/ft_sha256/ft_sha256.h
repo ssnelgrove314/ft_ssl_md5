@@ -49,5 +49,6 @@ void					sha256_update(sha256_ctx_t *ctx, const uint8_t data[], size_t len);
 void					sha256_final(sha256_ctx_t *ctx, uint8_t hash[]);
 char					*sha256_string(char *str);
 void					sha256_print(unsigned char digest[32]);
+void					sha256_handler(void *in);
 
 #endif

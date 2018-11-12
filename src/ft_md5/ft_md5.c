@@ -192,7 +192,7 @@ char *md5_digest_tochar(unsigned char digest[16])
 	int i;
 
 	output = NULL;
-	ft_vector_init(&test, 1);
+	ft_vector_init(&test, 32);
 	i = 0;
 	while (i < 16)
 	{
@@ -200,6 +200,7 @@ char *md5_digest_tochar(unsigned char digest[16])
 		ft_vector_append(&test, (char *)buf);
 		i++;
 	}
+	ft_vector_nappend(&test, "\0", 1);
 	output = ft_strdup(test.data);
 	ft_vector_free(&test);
 	return (output);
@@ -209,13 +210,35 @@ char *md5_string(char *str)
 {
 	t_md5_ctx ctx;
 	unsigned char digest[16];
-	char *final;
 
 	md5_init(&ctx);
 	md5_update(&ctx, (unsigned char *)str, ft_strlen(str));
 	md5_final(digest, &ctx);
-	final = md5_digest_tochar(digest);
-	return (final);
+	return (md5_digest_tochar(digest));
+}
+
+void md5_handler(void *in)
+{
+	t_md5_ctx ctx;
+	unsigned char digest[16];
+	unsigned char filebuf[512];
+	int fd;
+	int ret;
+	t_ft_ssl_input *input;
+
+	input = (t_ft_ssl_input *)in;
+	if (input->input_type == SSL_INPUT_STRING || input->input_type == SSL_INPUT_STDIN)
+	{
+		input->digest = md5_string(input->input);
+		return ;
+	}
+	else if ((fd = ft_fopen(input->filename, "r")) == -1)
+		ft_ssl_error(ft_strjoin(input->filename, " is an invalid file"));
+	md5_init(&ctx);
+	while((ret = read(fd, filebuf, 512)))
+		md5_update(&ctx, (unsigned char *)filebuf, ret);
+	md5_final(digest, &ctx);
+	input->digest = md5_digest_tochar(digest);
 }
 
 void md5_print(unsigned char digest[16])

@@ -42,5 +42,6 @@ void					md5_memcpy(unsigned char *src, unsigned char *dst, unsigned int len);
 void					md5_memset(unsigned char *ptr, int value, unsigned int len);
 void					md5_print(unsigned char digest[MD5_BLOCK_SIZE]);
 char					*md5_string(char *str);
+void					md5_handler(void *in);
 
 #endif

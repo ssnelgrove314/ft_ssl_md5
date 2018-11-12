@@ -11,8 +11,6 @@
 # define SSL_MAX_FUNC 2
 # define SSL_BUF 32
 
-typedef char *(*t_ft_ssl_func)(char *);
-
 typedef struct			s_ft_ssl_flags
 {
 	uint32_t			echo_stdin : 1;
@@ -35,6 +33,8 @@ typedef struct			s_ft_ssl_input
 	char				*input;
 	char				*digest;
 }						t_ft_ssl_input;
+
+typedef void (*t_ft_ssl_func)(void *input);
 
 typedef struct			s_ft_ssl_prg
 {

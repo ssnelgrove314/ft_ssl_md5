@@ -5,11 +5,11 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
-			"name": "(lldb) Launch",
 			"type": "cppdbg",
 			"request": "launch",
+			"name": "(lldb) Launch",
 			"program": "${workspaceFolder}/ft_ssl",
-			"args": ["md5", "-s", "abc", "-q"],
+			"args": ["md5", "-p", "-s", "abc", "abc"],
 			// "args": ["sha256", "-s", "abc", "-s", "def"],
 			// "args": ["md5"],
 			// "args": ["md5", "abc"],

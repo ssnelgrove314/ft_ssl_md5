@@ -138,16 +138,40 @@ char *sha256_digest_tochar(unsigned char digest[32])
 	output = NULL;
 	ft_vector_init(&test, 33);
 	i = 0;
-	while (i < 16)
+	while (i < 32)
 	{
 		sprintf(buf, "%02x", digest[i]);
 		ft_vector_append(&test, (char *)buf);
 		i++;
 	}
-	*(test.data + 32) = '\0';
+	ft_vector_nappend(&test, "\0", 1);
 	output = ft_strdup(test.data);
 	ft_vector_free(&test);
 	return (output);
+}
+
+void sha256_handler(void *in)
+{
+	sha256_ctx_t ctx;
+	unsigned char digest[32];
+	unsigned char filebuf[512];
+	int fd;
+	int ret;
+	t_ft_ssl_input *input;
+
+	input = (t_ft_ssl_input *)in;
+	if (input->input_type == SSL_INPUT_STRING || input->input_type == SSL_INPUT_STDIN)
+	{
+		input->digest = sha256_string(input->input);
+		return ;
+	}
+	else if ((fd = ft_fopen(input->filename, "r")) == -1)
+		ft_ssl_error(ft_strjoin(input->filename, " is an invalid file"));
+	sha256_init(&ctx);
+	while((ret = read(fd, filebuf, 512)))
+		sha256_update(&ctx, (unsigned char *)filebuf, ret);
+	sha256_final(&ctx, digest);
+	input->digest = sha256_digest_tochar(digest);
 }
 
 char *sha256_string(char *str)

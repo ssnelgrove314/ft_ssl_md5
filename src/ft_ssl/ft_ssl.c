@@ -18,8 +18,8 @@ void ft_ssl_get_func(char ***argv, t_ft_ssl_prg *prg)
 
 	t_ft_ssl_prg g_ssl_funcs[] =
 	{
-		{.name = "md5", .ssl_fnc = &md5_string, .flags = {0}},
-		{.name = "sha256", .ssl_fnc = &sha256_string, .flags = {0}},
+		{.name = "md5", .ssl_fnc = &md5_handler, .flags = {0}},
+		{.name = "sha256", .ssl_fnc = &sha256_handler, .flags = {0}},
 	};
 	i = -1;
 	while (++i < SSL_MAX_FUNC)
@@ -68,6 +68,7 @@ void ft_ssl_getflags(char ***argv, t_ft_ssl_prg *prg)
 	{
 		if (**av != '-')
 		{
+			prg->after_flags = av;
 			prg->flags.file_flag = 1;
 			break ;
 		}
@@ -151,7 +152,7 @@ char *ft_ssl_process_inputs(t_ft_ssl_prg *prg, t_queue *head)
 	while (!empty_queue(head))
 	{
 		tmp_input = (t_ft_ssl_input *)dequeue(head);
-		tmp_input->digest = prg->ssl_fnc(tmp_input->input);
+		prg->ssl_fnc(tmp_input);
 		if (tmp_input->input_type == SSL_INPUT_STDIN)
 		{
 			if (prg->flags.echo_stdin)
@@ -175,46 +176,41 @@ char *ft_ssl_process_inputs(t_ft_ssl_prg *prg, t_queue *head)
 	return (ret);
 }
 
-void ft_ssl_read_file(int fd, t_queue *head, char *filename)
+void ft_ssl_read_stdin(t_ft_ssl_input **tmp)
 {
 	char buf[64];
 	int ret;
-	
-	t_vector file;
-	t_ft_ssl_input *tmp;
+	t_vector a;
 
-	tmp = (t_ft_ssl_input *)ft_memalloc(sizeof(t_ft_ssl_input));
-	ft_vector_init(&file, 64);
-	while ((ret = read(fd, buf, 64)))
-		ft_vector_nappend(&file, (char *)buf, ret);
-	if (fd == STDIN_FILENO)
-		tmp->input_type = SSL_INPUT_STDIN;
-	else
-	{
-		tmp->input_type = SSL_INPUT_FILE;
-		tmp->filename = ft_strdup(filename);
-	}
-	tmp->input = ft_strdup(file.data);
-	enqueue(head, tmp);
-	ft_vector_free(&file);
+	ft_vector_init(&a, 64);
+	while ((ret = read(STDIN_FILENO, buf, 64)))
+		ft_vector_nappend(&a, buf, ret);
+	ft_vector_nappend(&a, "\0", 1);
+	(*tmp)->input_type = SSL_INPUT_STDIN;
+	(*tmp)->input = ft_strdup(a.data);
+	ft_vector_free(&a);
 }
 
-void ft_ssl_get_files_and_str(char ***argv, t_ft_ssl_prg *prg, t_queue *prg_stack)
+void ft_ssl_get_files_and_str(char ***argv, t_ft_ssl_prg *prg, t_queue *head)
 {
-	int fd;
+	t_ft_ssl_input *tmp;
 
-	fd = 0;
-	if (prg->flags.echo_stdin || (!prg->flags.string_input && !prg->flags.file_flag))
-		ft_ssl_read_file(STDIN_FILENO, prg_stack, 0);
+	tmp = NULL;
+	if (prg->flags.echo_stdin || (!prg->after_flags && !prg->flags.string_input && !prg->flags.file_flag))
+	{
+		tmp = (t_ft_ssl_input *)ft_memalloc(sizeof(t_ft_ssl_input));
+		ft_ssl_read_stdin(&tmp);
+		enqueue(head, tmp);
+	}
 	if (prg->flags.string_input)
-		ft_ssl_get_s_optstr(argv, prg_stack);
+		ft_ssl_get_s_optstr(argv, head);
 	while (*prg->after_flags)
 	{
-		if ((fd = ft_fopen(*(prg->after_flags), "r")) == -1)
-			ft_ssl_error(ft_strjoin(*(prg->after_flags), " is an invalid file"));
-		ft_ssl_read_file(fd, prg_stack, *(prg->after_flags));
+		tmp = (t_ft_ssl_input *)ft_memalloc(sizeof(t_ft_ssl_input));
+		tmp->filename = ft_strdup(*prg->after_flags);
+		tmp->input_type = SSL_INPUT_FILE;
 		prg->after_flags += 1;
-		close(fd);
+		enqueue(head, tmp);
 	}
 }
 

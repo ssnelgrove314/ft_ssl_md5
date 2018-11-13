@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ft_sha256.h                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ssnelgro <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2018/11/12 18:37:15 by ssnelgro          #+#    #+#             */
+/*   Updated: 2018/11/12 18:37:18 by ssnelgro         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef FT_SHA256_H
 # define FT_SHA256_H
 
@@ -18,15 +30,15 @@
 
 # define SHA256_BLOCK_SIZE 32
 
-typedef	struct			sha256_ctx_s
+typedef	struct			s_sha256_ctx
 {
-						uint8_t data[64];
-						uint32_t datalen;
-						unsigned long long bitlen;
-						uint32_t state[8];
-}						sha256_ctx_t;
+	uint8_t				data[64];
+	uint32_t			datalen;
+	unsigned long long	bitlen;
+	uint32_t			state[8];
+}						t_sha256_ctx;
 
-typedef struct			sha256_transform_vars_s
+typedef struct			s_sha256_tvars
 {
 	uint32_t			a;
 	uint32_t			b;
@@ -42,13 +54,27 @@ typedef struct			sha256_transform_vars_s
 	uint32_t			t1;
 	uint32_t			t2;
 	uint32_t			m[64];
-}						sha256_transform_vars_t;
+}						t_sha256_tvars;
 
-void					sha256_init(sha256_ctx_t *ctx);
-void					sha256_update(sha256_ctx_t *ctx, const uint8_t data[], size_t len);
-void					sha256_final(sha256_ctx_t *ctx, uint8_t hash[]);
+void					sha256_init(t_sha256_ctx *ctx);
+
+void					sha256_transform(\
+	t_sha256_ctx *ctx,\
+	const uint8_t data[]);
+
+void					sha256_update(\
+	t_sha256_ctx *ctx,\
+	const uint8_t data[],\
+	size_t len);
+
+void					sha256_final(\
+	t_sha256_ctx *ctx,\
+	uint8_t hash[]);
+
 char					*sha256_string(char *str);
-void					sha256_print(unsigned char digest[32]);
+
 void					sha256_handler(void *in);
+
+char					*sha256_digest_tochar(unsigned char digest[32]);
 
 #endif

@@ -1,14 +1,19 @@
-#ifndef FT_MD5_CONSTANTS
-# define FT_MD5_CONSTANTS
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ft_md5_constants.h                                 :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ssnelgro <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2018/11/12 17:10:01 by ssnelgro          #+#    #+#             */
+/*   Updated: 2018/11/12 17:10:02 by ssnelgro         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#ifndef FT_MD5_CONSTANTS_H
+# define FT_MD5_CONSTANTS_H
 
 # include <stdint.h>
-
-enum e_fghi {
-	MD5_F_FF,
-	MD5_G_GG,
-	MD5_H_HH,
-	MD5_I_II,
-};
 
 typedef struct	s_md5_round
 {
@@ -18,10 +23,10 @@ typedef struct	s_md5_round
 	uint32_t	signed_constant;
 }				t_md5_round;
 
-unsigned char g_md5_padding[64] = {
-  0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+unsigned char	g_md5_padding[64] = {
+	0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
 
 t_md5_round		g_md5_rounds[4][16] = {

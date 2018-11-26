@@ -14,14 +14,16 @@
 
 void				ft_ssl_read_stdin(t_ft_ssl_input **tmp)
 {
-	char			buf[64];
+	char			*buf;
 	int				ret;
 	t_vector		a;
 
-	ft_vector_init(&a, 64);
-	while ((ret = read(STDIN_FILENO, buf, 64)))
-		ft_vector_nappend(&a, buf, ret);
-	ft_vector_nappend(&a, "\0", 1);
+	ft_vector_init(&a, 1);
+	while ((ret = get_next_line(0, &buf) != 0))
+	{
+		ft_vector_append(&a, buf);
+		ft_strdel(&buf);
+	}
 	(*tmp)->input_type = SSL_INPUT_STDIN;
 	(*tmp)->input = ft_strdup(a.data);
 	ft_vector_free(&a);
@@ -44,10 +46,10 @@ void				ft_ssl_get_files_and_str(char ***argv, t_ft_ssl_prg *prg,\
 	}
 	if (prg->flags->string_input)
 		ft_ssl_get_s_optstr(argv, head);
-	while (*prg->after_flags)
+	while (prg->after_flags && *(prg->after_flags))
 	{
 		tmp = (t_ft_ssl_input *)ft_memalloc(sizeof(t_ft_ssl_input));
-		tmp->filename = ft_strdup(*prg->after_flags);
+		tmp->filename = ft_strdup(*(prg->after_flags));
 		tmp->input_type = SSL_INPUT_FILE;
 		prg->after_flags += 1;
 		enqueue(head, tmp);
@@ -69,7 +71,7 @@ int					main(int argc, char **argv)
 	ft_ssl_getflags(&argv, &prg);
 	ft_ssl_get_files_and_str(&argv, &prg, &prg_stack);
 	output = ft_ssl_process_inputs(&prg, &prg_stack);
-	printf("%s", output);
+	ft_printf("%s", output);
 	free(output);
 	free(prg.flags);
 	return (0);

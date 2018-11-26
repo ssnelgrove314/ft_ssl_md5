@@ -28,23 +28,24 @@ void							sha256_init(t_sha256_ctx *ctx)
 
 char							*sha256_digest_tochar(unsigned char digest[32])
 {
-	t_vector					test;
-	char						*output;
-	char						buf[3];
-	int							i;
+	char			*output;
+	char			*tmp;
+	int				i;
+	unsigned char	c;
+	char			*hex_tab;
 
-	output = NULL;
-	ft_vector_init(&test, 33);
+	hex_tab = "0123456789abcdef";
+	output = ft_memalloc(64 + 1);
+	c = 0;
 	i = 0;
+	tmp = output;
 	while (i < 32)
 	{
-		sprintf(buf, "%02x", digest[i]);
-		ft_vector_append(&test, (char *)buf);
+		c = digest[i];
+		*tmp++ = hex_tab[c >> 4];
+		*tmp++ = hex_tab[c & 0xf];
 		i++;
 	}
-	ft_vector_nappend(&test, "\0", 1);
-	output = ft_strdup(test.data);
-	ft_vector_free(&test);
 	return (output);
 }
 

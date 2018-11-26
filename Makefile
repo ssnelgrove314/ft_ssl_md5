@@ -12,7 +12,7 @@ OBJ = $(SRC:.c=.o)
 all: libft $(NAME)
 
 $(NAME): $(OBJ)
-	$(CC) -o $@ $^ $(CFLAGS) $(LDFLAGS)
+	$(CC) -o $@ $^ $(CFLAGS) $(DEBUG) $(LDFLAGS)
 
 .PHONY: libft
 libft:

@@ -57,23 +57,24 @@ void				md5_decode(\
 char				*md5_digest_tochar(\
 	unsigned char digest[16])
 {
-	t_vector		test;
 	char			*output;
-	char			buf[3];
+	char			*tmp;
 	int				i;
+	unsigned char	c;
+	char			*hex_tab;
 
-	output = NULL;
-	ft_vector_init(&test, 32);
+	hex_tab = "0123456789abcdef";
+	output = ft_memalloc(33);
+	c = 0;
 	i = 0;
+	tmp = output;
 	while (i < 16)
 	{
-		sprintf(buf, "%02x", digest[i]);
-		ft_vector_append(&test, (char *)buf);
+		c = digest[i];
+		*tmp++ = hex_tab[c >> 4];
+		*tmp++ = hex_tab[c & 0xf];
 		i++;
 	}
-	ft_vector_nappend(&test, "\0", 1);
-	output = ft_strdup(test.data);
-	ft_vector_free(&test);
 	return (output);
 }
 
